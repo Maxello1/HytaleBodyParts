@@ -1,0 +1,24 @@
+[
+  {
+    "Id": "Default",
+    "Model": "Characters/Player.blockymodel",
+    "Name": "avatarCustomization.bodyCharacteristics.Default.name",
+    "GradientSet": "Skin",
+    "GreyscaleTexture": "Characters/Player_Textures/Player_Greyscale.png",
+    "IsDefaultAsset": true
+  },
+  {
+    "Id": "Muscular",
+    "Model": "Characters/Player.blockymodel",
+    "Name": "avatarCustomization.bodyCharacteristics.Muscular.name",
+    "GradientSet": "Skin",
+    "GreyscaleTexture": "Characters/Player_Textures/Player_Muscular_Greyscale.png"
+  },
+  {
+    "Id": "HBT_Bust",
+    "Model": "Characters/HBT_Bust.blockymodel",
+    "Name": "avatarCustomization.bodyCharacteristics.HBT_Bust.name",
+    "GradientSet": "Skin",
+    "GreyscaleTexture": "Characters/Player_Textures/Player_Greyscale.png"
+  }
+]

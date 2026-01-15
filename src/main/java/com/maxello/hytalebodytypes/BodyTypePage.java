@@ -18,7 +18,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
 public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.BodyTypeEventData> {
 
@@ -32,7 +31,6 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
                                 (BodyTypeEventData o) -> o.action)
                         .add()
                         .build();
-
     }
 
     private final HytaleBodyTypes plugin;
@@ -49,17 +47,14 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
             @Nonnull UIEventBuilder eventBuilder,
             @Nonnull Store<EntityStore> store
     ) {
-        // This is relative to your Custom UI root (same style as the whitelist plugin)
+        // Correct: this is relative to Custom UI root
         commandBuilder.append("Pages/BodyTypeToggle.ui");
-
 
         boolean enabled = plugin.isEnabled(playerRef.getUuid());
 
-        // Fill UI state
         commandBuilder.set("#StatusLabel.Text", enabled ? "Status: ON" : "Status: OFF");
         commandBuilder.set("#StatusLabel.Style.TextColor", enabled ? "#4aff7f" : "#ff6b6b");
 
-        // Bind button clicks
         bindButtons(eventBuilder);
     }
 
@@ -95,30 +90,33 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
             @Nonnull Store<EntityStore> store,
             @Nonnull BodyTypeEventData data
     ) {
-        Player player = (Player) store.getComponent(ref, Player.getComponentType());
+        Player player = store.getComponent(ref, Player.getComponentType());
         if (player == null) return;
 
-        UUID uuid = playerRef.getUuid();
         String action = (data.action == null) ? "" : data.action;
 
         switch (action) {
             case "Enable" -> {
-                plugin.setEnabled(uuid, true);
-                playerRef.sendMessage(Message.raw("Hytale Body Types set to ON").color("#4aff7f"));
+                plugin.setEnabled(playerRef.getUuid(), true);
+                plugin.applyBodyCharacteristic(store, ref, playerRef);
+
+                playerRef.sendMessage(Message.raw("HBT: enabled").color("#4aff7f"));
                 refresh(ref, store);
             }
             case "Disable" -> {
-                plugin.setEnabled(uuid, false);
-                playerRef.sendMessage(Message.raw("Hytale Body Types set to OFF").color("#ff6b6b"));
+                plugin.setEnabled(playerRef.getUuid(), false);
+                plugin.applyBodyCharacteristic(store, ref, playerRef);
+
+                playerRef.sendMessage(Message.raw("HBT: disabled").color("#ff6b6b"));
                 refresh(ref, store);
             }
             case "Toggle" -> {
-                plugin.toggle(uuid);
-                boolean enabled = plugin.isEnabled(uuid);
-                playerRef.sendMessage(
-                        Message.raw("Hytale Body Types set to " + (enabled ? "ON" : "OFF"))
-                                .color(enabled ? "#4aff7f" : "#ff6b6b")
-                );
+                plugin.toggle(playerRef.getUuid());
+                plugin.applyBodyCharacteristic(store, ref, playerRef);
+
+                boolean enabled = plugin.isEnabled(playerRef.getUuid());
+                playerRef.sendMessage(Message.raw("HBT: " + (enabled ? "enabled" : "disabled"))
+                        .color(enabled ? "#4aff7f" : "#ff6b6b"));
                 refresh(ref, store);
             }
             case "Close" -> player.getPageManager().setPage(ref, store, Page.None);
@@ -137,8 +135,6 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
         cb.set("#StatusLabel.Text", enabled ? "Status: ON" : "Status: OFF");
         cb.set("#StatusLabel.Style.TextColor", enabled ? "#4aff7f" : "#ff6b6b");
 
-        // Usually bindings persist, but whitelist rebuilds them in build() and uses sendUpdate().
-        // We'll keep bindings consistent here too (safe).
         bindButtons(eb);
 
         sendUpdate(cb, eb, false);

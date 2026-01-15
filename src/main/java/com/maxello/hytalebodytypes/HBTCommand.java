@@ -13,7 +13,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
 public final class HBTCommand extends AbstractPlayerCommand {
 
@@ -23,8 +22,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
         super("bodytype", "Open body type toggle UI.", false);
         this.plugin = plugin;
 
-        // Optional dev/testing variant:
-        // /bodytype on|off|toggle|status
+        // Optional: /bodytype status (or on/off/toggle) as a debug fallback
         this.addUsageVariant(new ModeVariant(plugin));
     }
 
@@ -42,19 +40,20 @@ public final class HBTCommand extends AbstractPlayerCommand {
             return;
         }
 
+        plugin.debugPlayerCosmetics(player);
+
         player.getPageManager().openCustomPage(ref, store, new BodyTypePage(playerRef, plugin));
     }
 
-    // Variant: "/bodytype on|off|toggle|status"
     private static final class ModeVariant extends AbstractPlayerCommand {
 
         private final HytaleBodyTypes plugin;
 
         private final RequiredArg<String> MODE =
-                this.withRequiredArg("mode", "on/off/toggle/status", ArgTypes.STRING);
+                this.withRequiredArg("mode", "on/off/toggle/status/apply", ArgTypes.STRING);
 
         private ModeVariant(@Nonnull HytaleBodyTypes plugin) {
-            super("Set bodytype mode.");
+            super("Body type debug mode.");
             this.plugin = plugin;
         }
 
@@ -69,29 +68,35 @@ public final class HBTCommand extends AbstractPlayerCommand {
             String mode = ctx.get(MODE);
             mode = (mode == null) ? "status" : mode.toLowerCase();
 
-            UUID uuid = playerRef.getUuid();
-
             switch (mode) {
                 case "on" -> {
-                    plugin.setEnabled(uuid, true);
+                    plugin.setEnabled(playerRef.getUuid(), true);
+                    plugin.applyBodyCharacteristic(store, ref, playerRef);
                     ctx.sendMessage(Message.raw("Hytale Body Types: ON").color("#4aff7f"));
                 }
                 case "off" -> {
-                    plugin.setEnabled(uuid, false);
+                    plugin.setEnabled(playerRef.getUuid(), false);
+                    plugin.applyBodyCharacteristic(store, ref, playerRef);
                     ctx.sendMessage(Message.raw("Hytale Body Types: OFF").color("#ff6b6b"));
                 }
                 case "toggle" -> {
-                    plugin.toggle(uuid);
-                    boolean enabled = plugin.isEnabled(uuid);
+                    plugin.toggle(playerRef.getUuid());
+                    plugin.applyBodyCharacteristic(store, ref, playerRef);
+                    boolean enabled = plugin.isEnabled(playerRef.getUuid());
                     ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF"))
                             .color(enabled ? "#4aff7f" : "#ff6b6b"));
+
+                }
+                case "apply" -> {
+                    plugin.applyBodyCharacteristic(store, ref, playerRef);
+                    ctx.sendMessage(Message.raw("Applied current HBT state.").color("#cbd5e0"));
                 }
                 case "status" -> {
-                    boolean enabled = plugin.isEnabled(uuid);
+                    boolean enabled = plugin.isEnabled(playerRef.getUuid());
                     ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF"))
                             .color(enabled ? "#4aff7f" : "#ff6b6b"));
                 }
-                default -> ctx.sendMessage(Message.raw("Use: /bodytype on|off|toggle|status").color("#ff6b6b"));
+                default -> ctx.sendMessage(Message.raw("Use: /bodytype on|off|toggle|status|apply").color("#ff6b6b"));
             }
         }
     }
