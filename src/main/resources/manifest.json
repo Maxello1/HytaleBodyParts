@@ -2,5 +2,6 @@
   "Group": "com.maxello",
   "Name": "HytaleBodyTypes",
   "Version": "1.0.0",
-  "Main": "com.maxello.hytalebodytypes.HytaleBodyTypes"
+  "Main": "com.maxello.hytalebodytypes.HytaleBodyTypes",
+  "IncludesAssetPack": true
 }

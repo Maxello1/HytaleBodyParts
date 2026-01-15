@@ -1,0 +1,76 @@
+@OnStyle = TextButtonStyle(
+  Default: (Background: #2f855a, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Hovered: (Background: #38a169, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Pressed: (Background: #276749, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center))
+);
+
+@OffStyle = TextButtonStyle(
+  Default: (Background: #c53030, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Hovered: (Background: #e53e3e, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Pressed: (Background: #9b2c2c, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center))
+);
+
+@NeutralStyle = TextButtonStyle(
+  Default: (Background: #4a5568, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Hovered: (Background: #5a6578, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center)),
+  Pressed: (Background: #3a4558, LabelStyle: (FontSize: 14, TextColor: #ffffff, RenderBold: true, HorizontalAlignment: Center, VerticalAlignment: Center))
+);
+
+Group {
+  Anchor: (Width: 360, Height: 220);
+  Background: #141c26(0.98);
+  LayoutMode: Top;
+  Padding: (Full: 20);
+
+  Label {
+    Text: "HYTALE BODY TYPES";
+    Anchor: (Height: 34);
+    Style: (FontSize: 18, TextColor: #ffffff, HorizontalAlignment: Center, RenderBold: true);
+  }
+
+  Group { Anchor: (Height: 1); Background: #2b3542; }
+  Group { Anchor: (Height: 14); }
+
+  Label #StatusLabel {
+    Text: "Status: ???";
+    Anchor: (Height: 22);
+    Style: (FontSize: 14, TextColor: #cbd5e0, HorizontalAlignment: Center);
+  }
+
+  Group { Anchor: (Height: 16); }
+
+  Group {
+    LayoutMode: Left;
+    Anchor: (Height: 40);
+
+    TextButton #EnableButton {
+      Text: "ENABLE";
+      Anchor: (Width: 100, Height: 36);
+      Style: @OnStyle;
+    }
+
+    Group { Anchor: (Width: 12); }
+
+    TextButton #DisableButton {
+      Text: "DISABLE";
+      Anchor: (Width: 100, Height: 36);
+      Style: @OffStyle;
+    }
+
+    Group { Anchor: (Width: 12); }
+
+    TextButton #ToggleButton {
+      Text: "TOGGLE";
+      Anchor: (Width: 100, Height: 36);
+      Style: @NeutralStyle;
+    }
+  }
+
+  Group { FlexWeight: 1; }
+
+  TextButton #CloseButton {
+    Text: "CLOSE";
+    Anchor: (Width: 120, Height: 34);
+    Style: @NeutralStyle;
+  }
+}
