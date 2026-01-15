@@ -21,18 +21,6 @@ import javax.annotation.Nonnull;
 
 public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.BodyTypeEventData> {
 
-    public static final class BodyTypeEventData {
-        public String action;
-
-        public static final BuilderCodec<BodyTypeEventData> CODEC =
-                BuilderCodec.builder(BodyTypeEventData.class, BodyTypeEventData::new)
-                        .append(new KeyedCodec<>("Action", Codec.STRING),
-                                (BodyTypeEventData o, String v) -> o.action = v,
-                                (BodyTypeEventData o) -> o.action)
-                        .add()
-                        .build();
-    }
-
     private final HytaleBodyTypes plugin;
 
     public BodyTypePage(@Nonnull PlayerRef playerRef, @Nonnull HytaleBodyTypes plugin) {
@@ -41,13 +29,7 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
     }
 
     @Override
-    public void build(
-            @Nonnull Ref<EntityStore> ref,
-            @Nonnull UICommandBuilder commandBuilder,
-            @Nonnull UIEventBuilder eventBuilder,
-            @Nonnull Store<EntityStore> store
-    ) {
-        // Correct: this is relative to Custom UI root
+    public void build(@Nonnull Ref<EntityStore> ref, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder, @Nonnull Store<EntityStore> store) {
         commandBuilder.append("Pages/BodyTypeToggle.ui");
 
         boolean enabled = plugin.isEnabled(playerRef.getUuid());
@@ -59,37 +41,17 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
     }
 
     private void bindButtons(@Nonnull UIEventBuilder eventBuilder) {
-        eventBuilder.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#EnableButton",
-                new EventData().append("Action", "Enable")
-        );
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#EnableButton", new EventData().append("Action", "Enable"));
 
-        eventBuilder.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#DisableButton",
-                new EventData().append("Action", "Disable")
-        );
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#DisableButton", new EventData().append("Action", "Disable"));
 
-        eventBuilder.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#ToggleButton",
-                new EventData().append("Action", "Toggle")
-        );
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#ToggleButton", new EventData().append("Action", "Toggle"));
 
-        eventBuilder.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#CloseButton",
-                new EventData().append("Action", "Close")
-        );
+        eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#CloseButton", new EventData().append("Action", "Close"));
     }
 
     @Override
-    public void handleDataEvent(
-            @Nonnull Ref<EntityStore> ref,
-            @Nonnull Store<EntityStore> store,
-            @Nonnull BodyTypeEventData data
-    ) {
+    public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull BodyTypeEventData data) {
         Player player = store.getComponent(ref, Player.getComponentType());
         if (player == null) return;
 
@@ -115,8 +77,7 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
                 plugin.applyBodyCharacteristic(store, ref, playerRef);
 
                 boolean enabled = plugin.isEnabled(playerRef.getUuid());
-                playerRef.sendMessage(Message.raw("HBT: " + (enabled ? "enabled" : "disabled"))
-                        .color(enabled ? "#4aff7f" : "#ff6b6b"));
+                playerRef.sendMessage(Message.raw("HBT: " + (enabled ? "enabled" : "disabled")).color(enabled ? "#4aff7f" : "#ff6b6b"));
                 refresh(ref, store);
             }
             case "Close" -> player.getPageManager().setPage(ref, store, Page.None);
@@ -138,5 +99,10 @@ public final class BodyTypePage extends InteractiveCustomUIPage<BodyTypePage.Bod
         bindButtons(eb);
 
         sendUpdate(cb, eb, false);
+    }
+
+    public static final class BodyTypeEventData {
+        public static final BuilderCodec<BodyTypeEventData> CODEC = BuilderCodec.builder(BodyTypeEventData.class, BodyTypeEventData::new).append(new KeyedCodec<>("Action", Codec.STRING), (BodyTypeEventData o, String v) -> o.action = v, (BodyTypeEventData o) -> o.action).add().build();
+        public String action;
     }
 }

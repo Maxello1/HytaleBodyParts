@@ -27,13 +27,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
     }
 
     @Override
-    protected void execute(
-            @Nonnull CommandContext ctx,
-            @Nonnull Store<EntityStore> store,
-            @Nonnull Ref<EntityStore> ref,
-            @Nonnull PlayerRef playerRef,
-            @Nonnull World world
-    ) {
+    protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
         Player player = store.getComponent(ref, Player.getComponentType());
         if (player == null) {
             ctx.sendMessage(Message.raw("Error: Player component not found.").color("#ff6b6b"));
@@ -49,8 +43,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
 
         private final HytaleBodyTypes plugin;
 
-        private final RequiredArg<String> MODE =
-                this.withRequiredArg("mode", "on/off/toggle/status/apply", ArgTypes.STRING);
+        private final RequiredArg<String> MODE = this.withRequiredArg("mode", "on/off/toggle/status/apply", ArgTypes.STRING);
 
         private ModeVariant(@Nonnull HytaleBodyTypes plugin) {
             super("Body type debug mode.");
@@ -58,13 +51,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
         }
 
         @Override
-        protected void execute(
-                @Nonnull CommandContext ctx,
-                @Nonnull Store<EntityStore> store,
-                @Nonnull Ref<EntityStore> ref,
-                @Nonnull PlayerRef playerRef,
-                @Nonnull World world
-        ) {
+        protected void execute(@Nonnull CommandContext ctx, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
             String mode = ctx.get(MODE);
             mode = (mode == null) ? "status" : mode.toLowerCase();
 
@@ -83,8 +70,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
                     plugin.toggle(playerRef.getUuid());
                     plugin.applyBodyCharacteristic(store, ref, playerRef);
                     boolean enabled = plugin.isEnabled(playerRef.getUuid());
-                    ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF"))
-                            .color(enabled ? "#4aff7f" : "#ff6b6b"));
+                    ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF")).color(enabled ? "#4aff7f" : "#ff6b6b"));
 
                 }
                 case "apply" -> {
@@ -93,8 +79,7 @@ public final class HBTCommand extends AbstractPlayerCommand {
                 }
                 case "status" -> {
                     boolean enabled = plugin.isEnabled(playerRef.getUuid());
-                    ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF"))
-                            .color(enabled ? "#4aff7f" : "#ff6b6b"));
+                    ctx.sendMessage(Message.raw("Hytale Body Types: " + (enabled ? "ON" : "OFF")).color(enabled ? "#4aff7f" : "#ff6b6b"));
                 }
                 default -> ctx.sendMessage(Message.raw("Use: /bodytype on|off|toggle|status|apply").color("#ff6b6b"));
             }

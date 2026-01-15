@@ -1,11 +1,13 @@
 package com.maxello.hytalebodytypes;
+
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -21,17 +23,14 @@ import java.util.regex.Pattern;
 
 public final class HytaleBodyTypes extends JavaPlugin {
 
-    // Persisted toggle state
-    private final ConcurrentHashMap<UUID, Boolean> enabledByPlayer = new ConcurrentHashMap<>();
-
-    // Optional: remember what the player had before we overwrote it (per session)
-    private final ConcurrentHashMap<UUID, String> previousBodyCharacteristic = new ConcurrentHashMap<>();
-
-    private Path dataFile;
-
     // Your cosmetic IDs
     private static final String BODY_DEFAULT = "Default";
     private static final String BODY_BUST = "HBT_Bust";
+    // Persisted toggle state
+    private final ConcurrentHashMap<UUID, Boolean> enabledByPlayer = new ConcurrentHashMap<>();
+    // Optional: remember what the player had before we overwrote it (per session)
+    private final ConcurrentHashMap<UUID, String> previousBodyCharacteristic = new ConcurrentHashMap<>();
+    private Path dataFile;
 
     public HytaleBodyTypes(@Nonnull JavaPluginInit init) {
         super(init);
@@ -45,7 +44,8 @@ public final class HytaleBodyTypes extends JavaPlugin {
         Path dataDir = Paths.get("plugins", "HytaleBodyTypes");
         try {
             Files.createDirectories(dataDir);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         this.dataFile = dataDir.resolve("player_state.json");
         loadState();
@@ -84,10 +84,10 @@ public final class HytaleBodyTypes extends JavaPlugin {
 
     /**
      * Attempts to:
-     *  1) locate current PlayerSkin object
-     *  2) build a new PlayerSkin (same values, different bodyCharacteristic)
-     *  3) apply it via a set/apply method
-     *
+     * 1) locate current PlayerSkin object
+     * 2) build a new PlayerSkin (same values, different bodyCharacteristic)
+     * 3) apply it via a set/apply method
+     * <p>
      * This is reflection-based so it won't crash if names differ; it will just fail gracefully.
      */
     private boolean trySwapBodyCharacteristic(Store<EntityStore> store, Ref<EntityStore> ref, PlayerRef playerRef, String newBodyId) {
@@ -147,7 +147,8 @@ public final class HytaleBodyTypes extends JavaPlugin {
                 f.setAccessible(true);
                 Object v = f.get(player);
                 if (v != null) return v;
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         // 2) check getter-like methods
@@ -158,7 +159,8 @@ public final class HytaleBodyTypes extends JavaPlugin {
                 if (!n.contains("skin")) continue;
                 Object v = m.invoke(player);
                 if (v != null && v.getClass().getName().endsWith("PlayerSkin")) return v;
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         return null;
@@ -178,14 +180,10 @@ public final class HytaleBodyTypes extends JavaPlugin {
             return null;
         }
     }
-    public void applyBodyCharacteristic(
-            @Nonnull Store<EntityStore> store,
-            @Nonnull Ref<EntityStore> ref,
-            @Nonnull PlayerRef playerRef
-    ) {
+
+    public void applyBodyCharacteristic(@Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef) {
         // TODO: implement actual skin/body swap
-        System.out.println("[HBT] applyBodyCharacteristic called for " + playerRef.getUsername()
-                + " enabled=" + isEnabled(playerRef.getUuid()));
+        System.out.println("[HBT] applyBodyCharacteristic called for " + playerRef.getUsername() + " enabled=" + isEnabled(playerRef.getUuid()));
     }
 
     private Object rebuildSkinWithBodyCharacteristic(Object skin, String newBodyId) {
@@ -221,35 +219,20 @@ public final class HytaleBodyTypes extends JavaPlugin {
                 if (ps.length == 20) {
                     boolean allStrings = true;
                     for (Class<?> p : ps) {
-                        if (p != String.class) { allStrings = false; break; }
+                        if (p != String.class) {
+                            allStrings = false;
+                            break;
+                        }
                     }
-                    if (allStrings) { best = c; break; }
+                    if (allStrings) {
+                        best = c;
+                        break;
+                    }
                 }
             }
             if (best == null) return null;
 
-            return best.newInstance(
-                    newBodyId,
-                    underwear,
-                    face,
-                    ears,
-                    mouth,
-                    eyes,
-                    facialHair,
-                    haircut,
-                    eyebrows,
-                    pants,
-                    overpants,
-                    undertop,
-                    overtop,
-                    shoes,
-                    headAccessory,
-                    faceAccessory,
-                    earAccessory,
-                    skinFeature,
-                    gloves,
-                    cape
-            );
+            return best.newInstance(newBodyId, underwear, face, ears, mouth, eyes, facialHair, haircut, eyebrows, pants, overpants, undertop, overtop, shoes, headAccessory, faceAccessory, earAccessory, skinFeature, gloves, cape);
         } catch (Throwable t) {
             System.out.println("[HBT] rebuildSkinWithBodyCharacteristic failed: " + t);
             return null;
@@ -258,21 +241,15 @@ public final class HytaleBodyTypes extends JavaPlugin {
 
     private boolean applySkinToPlayer(Object player, Object newSkin) {
         // Try common method names
-        String[] candidates = {
-                "setSkin",
-                "setPlayerSkin",
-                "applySkin",
-                "applyPlayerSkin",
-                "updateSkin",
-                "updatePlayerSkin"
-        };
+        String[] candidates = {"setSkin", "setPlayerSkin", "applySkin", "applyPlayerSkin", "updateSkin", "updatePlayerSkin"};
 
         for (String name : candidates) {
             try {
                 Method m = player.getClass().getMethod(name, newSkin.getClass());
                 m.invoke(player, newSkin);
                 return true;
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         // If Player doesn't expose it, it might live on another object (appearance/cosmetics).
@@ -295,7 +272,8 @@ public final class HytaleBodyTypes extends JavaPlugin {
                         }
                     }
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         return false;
@@ -332,6 +310,7 @@ public final class HytaleBodyTypes extends JavaPlugin {
             return null;
         }
     }
+
     public void debugPlayerCosmetics(Object player) {
         System.out.println("[HBT] --- Player cosmetic probe ---");
         for (var m : player.getClass().getMethods()) {
@@ -389,12 +368,10 @@ public final class HytaleBodyTypes extends JavaPlugin {
 
         try {
             Path tmp = dataFile.resolveSibling(dataFile.getFileName().toString() + ".tmp");
-            Files.writeString(tmp, sb.toString(), StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE);
+            Files.writeString(tmp, sb.toString(), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
 
             Files.move(tmp, dataFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 }
